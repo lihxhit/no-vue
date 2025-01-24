@@ -25,26 +25,30 @@ import minimist from 'minimist'
 const { _: args } = minimist(process.argv.slice(2))
 const dir = args[1] ? args[1].split('=')[1] : undefined
 const f = args[2] ? args[2].split('=')[1] : undefined
-const buildDistOptions = {
-  emptyOutDir: false, // 若 outDir 在 root 目录下，则为 true。默认情况下，若 outDir 在 root 目录下，则 Vite 会在构建时清空该目录。若 outDir 在根目录之外则会抛出一个警告避免意外删除掉重要的文件。
-  lib: { // 构建为库。如果指定了 build.lib，build.cssCodeSplit 会默认为 false。
-    formats: f === 'iife' ? ['iife'] : ['es', 'umd'], // iife: 自执行函数表达式 Immediately Invoked Function Expression
-    // __dirname 的值是 vite.config.ts 文件所在目录
-    entry: resolve(__dirname, 'components', 'index.ts'),  // 或 'components/index.ts' entry 是必需的，因为库不能使用HTML作为入口。
-    name: 'VueAmazingUI', // 暴露的全局变量
-    fileName: 'index', // 输出的包文件名，默认是 package.json 的 name 选项；也可以定义为以 format 和 entryName 为参数的函数，并返回文件名
-    cssFileName: 'style' // 指定 CSS 输出文件的名称，默认为 package.json 中的 name
+const buildDistOptions:BuildEnvironmentOptions = {
+  // 若 outDir 在 root 目录下，则为 true。默认情况下，若 outDir 在 root 目录下，则 Vite 会在构建时清空该目录。若 outDir 在根目录之外则会抛出一个警告避免意外删除掉重要的文件。
+  emptyOutDir: false, 
+  // 以库的形式构建。如果指定了 build.lib，build.cssCodeSplit 会默认为 false。
+  lib: { 
+    // iife: 自执行函数表达式 Immediately Invoked Function Expression
+    formats: f === 'iife' ? ['iife'] : ['es', 'umd'], 
+    // entry 是必需的，因为库不能使用 HTML 作为入口。
+    entry: resolve(__dirname, 'components', 'index.ts'),
+    name: 'NoVue', // 暴露的全局变量，当 formats 包括 'umd' 或 'iife' 时必须使用。
+    // fileName: 'index', // 软件包输出文件的名称，默认是 package.json 的 name 选项；也可以定义为以 format 和 entryName 为参数的函数，并返回文件名
+    // cssFileName: 'style' // 指定 CSS 输出文件的名称，默认为 package.json 中的 name
   },
-  rollupOptions: { // 自定义底层的 Rollup 打包配置
+  // https://rollupjs.org/configuration-options/
+  // 自定义底层的 Rollup 打包配置。这与从 Rollup 配置文件导出的选项相同，并将与 Vite 的内部 Rollup 选项合并。
+  rollupOptions: {
     plugins: [
       // terser()
     ],
-    // https://rollupjs.org/configuration-options/
     // 确保外部化处理那些你不想打包进库的依赖（作为外部依赖）
     external: f === 'iife' ? ['vue'] : ['vue', 'swiper/modules', 'swiper/vue', '@vuepic/vue-datepicker', '@vueuse/integrations/useQRCode', '@vueuse/core', 'seemly', 'qrcode'],
     // 当创建 iife 或 umd 格式的 bundle 时，你需要通过 output.globals 选项提供全局变量名，以替换掉外部引入。
     output: {
-      name: 'VueAmazingUI', // 对于输出格式为 iife | umd 的 bundle 来说，若想要使用全局变量名来表示你的 bundle 时，该选项是必要的。同一页面上的其他脚本可以使用这个变量名来访问你的 bundle 输出
+      name: 'NoVue', // 对于输出格式为 iife | umd 的 bundle 来说，若想要使用全局变量名来表示你的 bundle 时，该选项是必要的。同一页面上的其他脚本可以使用这个变量名来访问你的 bundle 输出
       /*
         output.format: 
         • amd – 异步模块加载，适用于 RequireJS 等模块加载器
@@ -55,9 +59,16 @@ const buildDistOptions = {
         • system – SystemJS 模块加载器的原生格式（别名：systemjs）
       */
       // format: 'es', // 用于指定生成的 bundle 的格式，默认 'es'，可选 'amd' 'cjs' 'es' 'iife' 'umd' 'system'
-      exports: 'named', // 用于指定导出模式，默认是 auto，指根据 input 模块导出推测你的意图
+      // 该选项用于指定导出模式。默认是 auto，指根据 input 模块导出推测你的意图：
+      /*
+        • default – 适用于只使用 export default ... 的情况；请注意，此操作可能会导致生成想要在与 ESM 输出可互换的 CommonJS 输出时出现问题
+        • named – 适用于使用命名导出的情况
+        • none – 适用于没有导出的情况（比如，当你在构建应用而非库时）
+      */
+      exports: 'named',
+      // // 默认 true，当该选项的值为 false 时，Rollup 不会为外部依赖生成支持动态绑定的代码，而是假定外部依赖永远不会改变。这使得 Rollup 会生成更多优化代码。请注意，当外部依赖存在循环引用时，该选项值为 false 可能会引起问题。
       // 在大多数情况下，该选项值为 false 将避免 Rollup 生成多余代码的 getters，因此在很多情况下，可以使代码兼容 IE8。
-      externalLiveBindings: false, // 默认 true，当该选项的值为 false 时，Rollup 不会为外部依赖生成支持动态绑定的代码，而是假定外部依赖永远不会改变。这使得 Rollup 会生成更多优化代码。请注意，当外部依赖存在循环引用时，该选项值为 false 可能会引起问题。
+      externalLiveBindings: false, 
       // 在 UMD 构建模式下为这些外部化的依赖提供一个全局变量
       globals: {
         vue: 'Vue',
@@ -101,8 +112,9 @@ const buildDistOptions = {
   chunkSizeWarningLimit: 1000, // 默认 500，规定触发警告的 chunk 大小，单位kbs
   // sourcemap: false // boolean | 'inline' | 'hidden'，构建后是否生成 source map 文件。默认 false
 }
-const buildESAndLibOptions = {
-  // emptyOutDir: true, // 若 outDir 在 root 目录下，则为 true。默认情况下，若 outDir 在 root 目录下，则 Vite 会在构建时清空该目录。若 outDir 在根目录之外则会抛出一个警告避免意外删除掉重要的文件。
+const buildESAndLibOptions:BuildEnvironmentOptions= {
+  // 若 outDir 在 root 目录下，则为 true。默认情况下，若 outDir 在 root 目录下，则 Vite 会在构建时清空该目录。若 outDir 在根目录之外则会抛出一个警告避免意外删除掉重要的文件。
+  // emptyOutDir: true, 
   lib: { // 构建为库。如果指定了 build.lib，build.cssCodeSplit 会默认为 false。
     entry: resolve(__dirname, 'components', 'index.ts'), // 或 'components/index.ts'
   },
@@ -125,6 +137,8 @@ const buildESAndLibOptions = {
         //   return `${chunkInfo.name}.js`
         // },
         entryFileNames: '[name].js',
+        // 该选项将使用原始模块名作为文件名，为所有模块创建单独的 chunk，而不是创建尽可能少的 chunk。
+        // https://cn.rollupjs.org/configuration-options/#output-preservemodules
         preserveModules: true,
         dir: 'es',
         exports: 'named',
@@ -225,7 +239,7 @@ export default defineConfig({
     // })
   ],
   // 构建为库
-  build: (dir === 'dist' ? buildDistOptions : buildESAndLibOptions) as BuildEnvironmentOptions,
+  build: (dir === 'dist' ? buildDistOptions : buildESAndLibOptions),
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

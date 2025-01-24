@@ -1,3 +1,14 @@
 {
-  "recommendations": []
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "donjayamanne.githistory",
+    "codezombiech.gitignore",
+    "alibaba-cloud.tongyi-lingma",
+    "vscode-icons-team.vscode-icons",
+    "septwong.vscode-webstorm-theme",
+    "vue.volar",
+    "gruntfuggly.todo-tree",
+    "esbenp.prettier-vscode",
+    "christian-kohler.path-intellisense"
+  ]
 }

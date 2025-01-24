@@ -1,9 +1,9 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: `Vue Amazing UI`,
-  description: 'Amazing UI 组件库',
-  base: '/vue-amazing-ui/',
+  title: `No Vue`,
+  description: 'No Vue',
+  base: '/no-vue/',
 
   head: [
     // 网站图标
@@ -33,24 +33,24 @@ export default defineConfig({
 
     // 默认支持icon包括：'discord'|'facebook'|'github'|'instagram'|'linkedin'|'mastodon'|'slack'|'twitter'|'youtube'
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/themusecatcher/vue-amazing-ui' },
-      { icon: 'npm', link: 'https://www.npmjs.com/package/vue-amazing-ui' }
+      { icon: 'github', link: 'https://github.com/lihxhit/no-vue' },
+      // { icon: 'npm', link: 'https://www.npmjs.com/package/vue-amazing-ui' }
     ],
 
     // search: { // vitepress 内置 search
     //   provider: 'local'
     // },
 
-    algolia: {
-      // algolia 搜索服务 与 内置 search 可二选一
-      appId: 'SHDNEYGA8Z',
-      apiKey: '91419401b0b0efd31b610e54e5b97249',
-      indexName: 'vue-amazing-ui'
-    },
+    // algolia: {
+    //   // algolia 搜索服务 与 内置 search 可二选一
+    //   appId: 'SHDNEYGA8Z',
+    //   apiKey: '91419401b0b0efd31b610e54e5b97249',
+    //   indexName: 'vue-amazing-ui'
+    // },
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2023-present the Muse Catcher'
+      copyright: 'Copyright © 2025-present LiShaonan'
     },
 
     nav: [
